@@ -1,0 +1,26 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    # ВАЖНО: Здесь мы указываем, что джоб должен выполняться на твоем ноутбуке
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -t my-website-web:latest -f Dockerfile.python .
+
+    - name: Load image into Minikube
+      run: |
+        minikube image load my-website-web:latest
+
+    - name: Update Deployment in K8s
+      run: |
+        kubectl rollout restart deployment/web -n default
